@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, BarChart3, Receipt, CalendarClock, Info, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, BarChart3, Receipt, CalendarClock, Info, ChevronRight, Menu, X } from 'lucide-react';
 import MetricCard from './components/MetricCard';
 import { CashFlowChart, RevenueCompositionChart, ProfitabilityChart, GSTChart } from './components/FinancialCharts';
 import DataTable from './components/DataTable';
@@ -8,6 +8,7 @@ import { CAPEX_ITEMS, OPEX_ITEMS, COMPLIANCE_CHECKLIST, RAW_DATA } from './const
 
 function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'financials' | 'tax' | 'assumptions'>('dashboard');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // KPI Calculations
   const finalCash = RAW_DATA[RAW_DATA.length - 1].endingCash;
@@ -174,17 +175,36 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 flex flex-col md:flex-row">
+    <div className="flex h-screen bg-slate-50 overflow-hidden font-sans text-slate-900">
+      
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-40 bg-black/50 md:hidden backdrop-blur-sm transition-opacity"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-64 bg-slate-900 text-white flex-shrink-0 md:h-screen sticky top-0 overflow-y-auto">
-        <div className="p-6 border-b border-slate-800">
-          <h1 className="text-2xl font-bold tracking-tight text-white">GearUp</h1>
-          <p className="text-xs text-slate-400 mt-1">Service Center Projections</p>
+      <aside 
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 text-white transform transition-transform duration-300 ease-in-out md:static md:translate-x-0 flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+      >
+        <div className="p-6 border-b border-slate-800 flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">GearUp</h1>
+            <p className="text-xs text-slate-400 mt-1">Service Center Projections</p>
+          </div>
+          <button 
+            onClick={() => setIsSidebarOpen(false)} 
+            className="md:hidden text-slate-400 hover:text-white p-1"
+          >
+            <X size={20} />
+          </button>
         </div>
         
-        <nav className="p-4 space-y-2">
+        <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
           <button 
-            onClick={() => setActiveTab('dashboard')}
+            onClick={() => { setActiveTab('dashboard'); setIsSidebarOpen(false); }}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'dashboard' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
           >
             <LayoutDashboard size={20} />
@@ -192,7 +212,7 @@ function App() {
           </button>
           
           <button 
-             onClick={() => setActiveTab('financials')}
+             onClick={() => { setActiveTab('financials'); setIsSidebarOpen(false); }}
              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'financials' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
           >
             <BarChart3 size={20} />
@@ -200,7 +220,7 @@ function App() {
           </button>
 
           <button 
-             onClick={() => setActiveTab('tax')}
+             onClick={() => { setActiveTab('tax'); setIsSidebarOpen(false); }}
              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'tax' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
           >
             <Receipt size={20} />
@@ -208,7 +228,7 @@ function App() {
           </button>
 
           <button 
-             onClick={() => setActiveTab('assumptions')}
+             onClick={() => { setActiveTab('assumptions'); setIsSidebarOpen(false); }}
              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${activeTab === 'assumptions' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}
           >
             <Info size={20} />
@@ -231,31 +251,62 @@ function App() {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto h-screen bg-slate-50/50">
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-30 px-8 py-4 flex justify-between items-center shadow-sm backdrop-blur-sm bg-white/90">
-          <div>
-            <h2 className="text-xl font-bold text-slate-800">
-              {activeTab === 'dashboard' && 'Executive Summary'}https://www.notion.so/2d0a380992cd802b93cff70609f1984e?v=2d0a380992cd808c9716000c8de8d78a&source=copy_link
-              {activeTab === 'financials' && 'Detailed Financial Projections'}
-              {activeTab === 'tax' && 'Taxation & Compliance'}
-              {activeTab === 'assumptions' && 'Model Inputs & CAPEX'}
-            </h2>
-            <p className="text-sm text-slate-500">36-Month Operating Horizon (Apr 2026 - Mar 2029)</p>
-          </div>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        
+        {/* Mobile Header */}
+        <div className="md:hidden bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-sm z-30">
           <div className="flex items-center gap-3">
-             <div className="px-3 py-1 bg-slate-100 rounded-md text-xs font-medium text-slate-600 border border-slate-200">
-                INR (₹)
-             </div>
-             <div className="px-3 py-1 bg-blue-50 rounded-md text-xs font-medium text-blue-700 border border-blue-100">
-                FY 26-29
-             </div>
+            <button 
+              onClick={() => setIsSidebarOpen(true)}
+              className="text-slate-600 hover:text-slate-900 p-1"
+            >
+              <Menu size={24} />
+            </button>
+            <span className="font-bold text-slate-800 text-lg">GearUp</span>
           </div>
-        </header>
-
-        <div className="p-8 max-w-7xl mx-auto">
-          {renderContent()}
+          <div className="px-2 py-1 bg-blue-50 rounded-md text-xs font-medium text-blue-700 border border-blue-100">
+            FY 26-29
+          </div>
         </div>
-      </main>
+
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-y-auto bg-slate-50/50">
+          <header className="hidden md:flex bg-white border-b border-slate-200 sticky top-0 z-30 px-8 py-4 justify-between items-center shadow-sm backdrop-blur-sm bg-white/90">
+            <div>
+              <h2 className="text-xl font-bold text-slate-800">
+                {activeTab === 'dashboard' && 'Executive Summary'}
+                {activeTab === 'financials' && 'Detailed Financial Projections'}
+                {activeTab === 'tax' && 'Taxation & Compliance'}
+                {activeTab === 'assumptions' && 'Model Inputs & CAPEX'}
+              </h2>
+              <p className="text-sm text-slate-500">36-Month Operating Horizon (Apr 2026 - Mar 2029)</p>
+            </div>
+            <div className="flex items-center gap-3">
+               <div className="px-3 py-1 bg-slate-100 rounded-md text-xs font-medium text-slate-600 border border-slate-200">
+                  INR (₹)
+               </div>
+               <div className="px-3 py-1 bg-blue-50 rounded-md text-xs font-medium text-blue-700 border border-blue-100">
+                  FY 26-29
+               </div>
+            </div>
+          </header>
+
+          <div className="p-4 md:p-8 max-w-7xl mx-auto">
+            {/* Mobile Title (Since main header is hidden on mobile) */}
+            <div className="md:hidden mb-6">
+              <h2 className="text-xl font-bold text-slate-800">
+                {activeTab === 'dashboard' && 'Executive Summary'}
+                {activeTab === 'financials' && 'Detailed Financials'}
+                {activeTab === 'tax' && 'Taxation & Compliance'}
+                {activeTab === 'assumptions' && 'Model Inputs'}
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">36-Month Horizon (Apr 2026 - Mar 2029)</p>
+            </div>
+            
+            {renderContent()}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
