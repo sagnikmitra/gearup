@@ -1,7 +1,7 @@
 import React from 'react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  BarChart, Bar, Legend, ComposedChart, Line, ReferenceLine
+  BarChart, Bar, Legend, ComposedChart, Line, ReferenceLine, LineChart
 } from 'recharts';
 import { RAW_DATA } from '../constants';
 
@@ -120,6 +120,3 @@ export const GSTChart: React.FC = () => {
     </div>
   );
 };
-
-// Helper for LineChart export
-import { LineChart } from 'recharts';
